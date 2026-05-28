@@ -5,7 +5,7 @@ from Hry import views  # Čistý import views z aplikace Hry
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('aktualizuj-hltb-hry/', views.aktualizuj_hltb_hry, name='aktualizuj_hltb_hry'),
-
+    path('', RedirectView.as_view(url='moje-hry/', permanent=True)),
     # Hlavní stránka tvého herního backlogu
     path('moje-hry/', views.seznam_her, name='seznam_her'),
     path('import/', views.nacist_ze_steam, name='import_her'),
