@@ -1,0 +1,231 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <title>GamesToPlay</title>
+    <link rel="stylesheet" href="{% static 'Hry/styl.css' %}">
+</head>
+<body>
+<div class="container">
+
+    <h1>🎮 GamesToPlay - Tvůj herní tracker</h1>
+
+    {% if request.user.is_authenticated %}
+        <p class="text-right">
+            Přihlášen jako Steam ID: <strong>{{ request.user.username }}</strong> | 
+            <a href="/import/" class="text-sync">🔄 Aktualizovat hry ze Steamu</a> | 
+            <a href="/steam/logout/" class="text-logout">Odhlásit se</a>
+        </p>
+
+        <div class="stats-container">
+            <div class="stat-card card-blue">
+                <span class="stat-title">Celkem odehráno</span>
+                <strong class="stat-value">{{ stat_hodiny }} hod</strong>
+            </div>
+            <div class="stat-card card-yellow">
+                <span class="stat-title">Hry v backlogu</span>
+                <strong class="stat-value">{{ stat_backlog }}</strong>
+            </div>
+            <div class="stat-card card-green">
+                <span class="stat-title">Síň slávy (100%)</span>
+                <strong class="stat-value">{{ stat_dohrano }}</strong>
+            </div>
+            <div class="stat-card card-purple">
+                <span class="stat-title">Úspěšnost dokončení</span>
+                <strong class="stat-value">{{ stat_procento }} %</strong>
+            </div>
+            <div class="stat-card card-gold">
+                <span class="stat-title">Zbývá dohrát (HLTB)</span>
+                <strong class="stat-value">~{{ stat_hltb }} hod</strong>
+            </div>
+        </div>
+
+        <div class="filter-bar">
+            <input type="text" id="search-input" placeholder="🔍 Vyhledat hru podle názvu..." autocomplete="off">
+            <div class="filter-buttons">
+                <button class="btn-filter active" data-filter="all">Všechny</button>
+                <button class="btn-filter" data-filter="vysoka">🔥 Vysoká</button>
+                <button class="btn-filter" data-filter="stredni">⏳ Střední</button>
+                <button class="btn-filter" data-filter="nizka">💤 Nízká</button>
+                <button type="button" class="btn-randomizer" onclick="spustRandomizer()">🎲 Cyber Randomizer</button>
+            </div>
+        </div>
+        
+        <h2>⏳ Aktuální Backlog (Nedohráno)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th onclick="seradTabulku(0)" style="cursor: pointer; user-select: none;">Název hry <span id="sipka-nazev">🔼</span></th>
+                    <th onclick="seradTabulku(1)" style="cursor: pointer; user-select: none;">Odehraný čas <span id="sipka-cas">🔼</span></th>
+                    <th>Achievementy</th>
+                    <th>Priorita</th>
+                    <th>Akce</th>
+                </tr>
+            </thead>
+            <tbody id="backlog-body">
+                {% for hra in hry_nedohrano %}
+                <tr id="hra-{{ hra.steam_id }}" 
+                    data-nazev="{{ hra.nazev|lower }}" 
+                    data-priorita="{{ hra.priorita }}" 
+                    data-rawcas="{{ hra.odehrany_cas }}"
+                    class="{% if hra.achievementy_celkem > 0 and hra.achievementy_odemceno == hra.achievementy_celkem %}perfect-game{% endif %}">
+                    <td>
+                        <div class="game-cell">
+                            <img src="https://cdn.akamai.steamstatic.com/steam/apps/{{ hra.steam_id }}/capsule_sm_120.jpg" alt="" class="game-icon" onerror="this.src='https://cdn.akamai.steamstatic.com/steam/apps/{{ hra.steam_id }}/header.jpg';">
+                            <div class="game-info-wrapper">
+                                <strong class="game-title-text">{{ hra.nazev }}</strong>
+                                <span class="text-gold">⏱️ Cca {{ hra.hltb_cas }} hod na příběh</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="text-center font-numeric">{{ hra.odehrane_hodiny }} hod</td>
+                    <td>
+                        <div class="achievement-column-wrapper">
+                            <span class="badge badge-ach">🏆 {{ hra.achievementy_odemceno }} / {{ hra.achievementy_celkem }}</span>
+                            <form action="/moje-hry/upravit/{{ hra.steam_id }}/" method="POST" class="inline-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="akce" value="nacti_achievementy">
+                                <button type="submit" class="btn-action">🔎 Zkontrolovat</button>
+                            </form>
+                        </div>
+                    </td>
+                    <td>
+                        <form action="/moje-hry/upravit/{{ hra.steam_id }}/" method="POST" class="inline-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="akce" value="zmen_prioritu">
+                            <input type="hidden" name="nova_priorita" class="hidden-priorita-input" value="{{ hra.priorita }}">
+                            <button type="button" class="btn-action priorita-button priorita-{{ hra.priorita }}" onclick="otevriOknoPriority(event, '{{ hra.steam_id }}')">
+                                {{ hra.get_priorita_display|upper }}
+                            </button>
+                        </form>
+                    </td>
+                    <td>
+                        <div class="actions-column-wrapper">
+                            <form action="/moje-hry/upravit/{{ hra.steam_id }}/" method="POST" class="inline-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="akce" value="prepni_stav">
+                                <button type="submit" class="btn-action text-success">🏆 Do Síně</button>
+                            </form>
+                            <form action="/moje-hry/upravit/{{ hra.steam_id }}/" method="POST" class="inline-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="akce" value="nebudu_hrat">
+                                <button type="submit" class="btn-action btn-delete">🗑️ Odpad</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr class="no-games-row">
+                    <td colspan="5" class="text-center text-muted">Žádné hry v backlogu.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h2>🏆 Síň slávy (Dohráno na 100 %)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Název hry</th>
+                    <th>Moje hodnocení a recenze</th>
+                    <th>Akce</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for hra in hry_dohrano %}
+                <tr id="hra-{{ hra.steam_id }}">
+                    <td style="width: 35%;">
+                        <div class="game-cell">
+                            <img src="https://cdn.akamai.steamstatic.com/steam/apps/{{ hra.steam_id }}/capsule_sm_120.jpg" alt="" class="game-icon icon-grey" onerror="this.src='https://cdn.akamai.steamstatic.com/steam/apps/{{ hra.steam_id }}/header.jpg';">
+                            <del class="text-muted">{{ hra.nazev }}</del>
+                        </div>
+                    </td>
+                    <td style="width: 45%;">
+                        <form action="/moje-hry/upravit/{{ hra.steam_id }}/" method="POST" class="review-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="akce" value="uloz_recenzi">
+                            <select name="hodnoceni" class="select-stars">
+                                <option value="0" {% if hra.hodnoceni == 0 %}selected{% endif %}>☆☆☆☆☆</option>
+                                <option value="1" {% if hra.hodnoceni == 1 %}selected{% endif %}>⭐☆☆☆☆</option>
+                                <option value="2" {% if hra.hodnoceni == 2 %}selected{% endif %}>⭐⭐☆☆☆</option>
+                                <option value="3" {% if hra.hodnoceni == 3 %}selected{% endif %}>⭐⭐⭐☆☆</option>
+                                <option value="4" {% if hra.hodnoceni == 4 %}selected{% endif %}>⭐⭐⭐⭐☆</option>
+                                <option value="5" {% if hra.hodnoceni == 5 %}selected{% endif %}>⭐⭐⭐⭐⭐</option>
+                            </select>
+                            <input type="text" name="poznamka" value="{{ hra.poznamka|default:'' }}" placeholder="Napiš krátkou osobní poznámku..." class="review-input">
+                            <button type="submit" class="btn-action text-success">Uložit</button>
+                        </form>
+                    </td>
+                    <td style="width: 20%;">
+                        <form action="/moje-hry/upravit/{{ hra.steam_id }}/" method="POST" class="inline-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="akce" value="vrat_do_backlogu">
+                            <button type="submit" class="btn-action">↩️ Zpět do backlogu</button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3" class="text-center text-muted">Zatím žádná hra pokořená na 100 %.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h2>🗑️ Odpad (Nebudu hrát)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Název hry</th>
+                    <th>Odehraný čas</th>
+                    <th>Stav</th>
+                    <th>Akce</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for hra in hry_odpad %}
+                <tr>
+                    <td>
+                        <div class="game-cell">
+                            <img src="https://cdn.akamai.steamstatic.com/steam/apps/{{ hra.steam_id }}/capsule_sm_120.jpg" alt="" class="game-icon icon-grey" onerror="this.src='https://cdn.akamai.steamstatic.com/steam/apps/{{ hra.steam_id }}/header.jpg';">
+                            <span class="text-muted">{{ hra.nazev }}</span>
+                        </div>
+                    </td>
+                    <td>{{ hra.odehrane_hodiny }} hod</td>
+                    <td><span class="badge stav-odpad">IGNOROVÁNO</span></td>
+                    <td>
+                        <form action="/moje-hry/upravit/{{ hra.steam_id }}/" method="POST" class="inline-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="akce" value="vrat_do_backlogu">
+                            <button type="submit" class="btn-action">↩️ Zpět</button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted">Žádné hry v koši.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div id="priority-custom-modal" class="priority-popup" style="display: none;">
+            <button type="button" onclick="vyberPriorituZOkna('vysoka')" class="popup-option priorita-vysoka">VYSOKÁ</button>
+            <button type="button" onclick="vyberPriorituZOkna('stredni')" class="popup-option priorita-stredni">STŘEDNÍ</button>
+            <button type="button" onclick="vyberPriorituZOkna('nizka')" class="popup-option priorita-nizka">NÍZKÁ</button>
+        </div>
+
+        <script src="{% static 'Hry/script.js' %}"></script>
+
+    {% else %}
+        <div class="welcome-box">
+            <h2>Vítej v aplikaci GamesToPlay!</h2>
+            <p class="text-muted">Pro zobrazení svého seznamu se nejdříve přihlas.</p>
+            <a href="/steam/login/" class="steam-login-btn">🔐 Přihlásit se přes STEAM</a>
+        </div>
+    {% endif %}
+
+</div>
+</body>
+</html>

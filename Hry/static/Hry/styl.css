@@ -1,0 +1,495 @@
+/* ========================================================
+   GAMES TO PLAY - NEON CYBERPUNK EDITION (PRECISE GRID)
+   ======================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Rajdhani:wght@500;600;700&display=swap');
+
+:root {
+    --bg-main: #09090b;
+    --neon-blue: #00f3ff;
+    --neon-purple: #b026ff;
+    --neon-pink: #ff0055;
+    --neon-green: #00ff66;
+    --neon-gold: #ffcc00;
+    --glass-bg: rgba(15, 15, 22, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.05);
+}
+
+/* Jemně animovaná holografická síť na pozadí */
+@keyframes bgScroll {
+    0% { background-position: 0 0; }
+    100% { background-position: 50px 50px; }
+}
+
+body {
+    font-family: 'Rajdhani', sans-serif;
+    margin: 0;
+    padding: 30px;
+    background-color: var(--bg-main);
+    background-image: 
+        linear-gradient(rgba(0, 243, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 243, 255, 0.02) 1px, transparent 1px);
+    background-size: 50px 50px;
+    animation: bgScroll 20s linear infinite;
+    color: #e2e8f0;
+    -webkit-font-smoothing: antialiased;
+}
+
+.container {
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+/* ================= ANIMACE A DIGITÁLNÍ EFEKTY ================= */
+@keyframes titleFlicker {
+    0%, 18%, 22%, 25%, 53%, 57%, 100% { text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue); }
+    20%, 24%, 55% { text-shadow: none; opacity: 0.9; }
+}
+
+@keyframes slideUpFade {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes winnerGlow {
+    0%, 100% { box-shadow: inset 0 0 15px rgba(176, 38, 255, 0.4); background: rgba(176, 38, 255, 0.08); }
+    50% { box-shadow: inset 0 0 25px rgba(176, 38, 255, 0.6); background: rgba(176, 38, 255, 0.2); }
+}
+
+/* ================= NADPISY ================= */
+h1 {
+    font-family: 'Chakra Petch', sans-serif;
+    color: #ffffff;
+    font-size: 3em;
+    margin-bottom: 30px;
+    text-transform: uppercase;
+    text-align: center;
+    letter-spacing: 3px;
+    animation: titleFlicker 4s infinite alternate;
+}
+
+h2 {
+    font-family: 'Chakra Petch', sans-serif;
+    color: var(--neon-blue);
+    margin-top: 50px;
+    padding-bottom: 10px;
+    font-size: 1.6em;
+    text-transform: uppercase;
+    border-bottom: 1px solid rgba(0, 243, 255, 0.2);
+    position: relative;
+}
+
+h2::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: 0;
+    width: 60px; height: 2px;
+    background: var(--neon-blue);
+    box-shadow: 0 0 10px var(--neon-blue);
+}
+
+/* ================= STATISTICKÉ KARTY ================= */
+.stats-container {
+    display: flex;
+    gap: 15px;
+    margin: 30px 0;
+}
+
+.stat-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    padding: 20px 15px;
+    border-radius: 10px;
+    flex: 1;
+    text-align: center;
+    animation: slideUpFade 0.5s ease-out forwards;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+}
+
+.stat-title {
+    font-size: 0.85em;
+    color: #94a3b8;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+}
+
+.stat-value {
+    font-size: 2.2em;
+    color: #fff;
+    font-weight: 700;
+    display: block;
+    margin-top: 5px;
+    font-family: 'Chakra Petch', sans-serif;
+}
+
+.card-blue { border-top: 3px solid var(--neon-blue); }
+.card-blue:hover { box-shadow: 0 0 15px rgba(0, 243, 255, 0.15); }
+
+.card-yellow { border-top: 3px solid var(--neon-gold); }
+.card-yellow:hover { box-shadow: 0 0 15px rgba(255, 204, 0, 0.15); }
+
+.card-green { border-top: 3px solid var(--neon-green); }
+.card-green:hover { box-shadow: 0 0 15px rgba(0, 255, 102, 0.15); }
+
+.card-purple { border-top: 3px solid var(--neon-purple); }
+.card-purple:hover { box-shadow: 0 0 15px rgba(176, 38, 255, 0.15); }
+
+.card-gold { border-top: 3px solid #ff8800; }
+.card-gold:hover { box-shadow: 0 0 15px rgba(255, 136, 0, 0.15); }
+
+/* ================= FILTRAČNÍ PANEL ================= */
+.filter-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--glass-bg);
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid var(--glass-border);
+    margin-bottom: 25px;
+}
+
+#search-input {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(0, 243, 255, 0.2);
+    color: #fff;
+    padding: 10px 15px;
+    border-radius: 6px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.05em;
+    outline: none;
+    transition: 0.2s;
+}
+
+#search-input:focus {
+    border-color: var(--neon-blue);
+    box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
+}
+
+.btn-filter {
+    background: transparent;
+    border: 1px solid #334155;
+    color: #94a3b8;
+    padding: 9px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'Chakra Petch', sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85em;
+    transition: all 0.2s;
+    margin-left: 8px;
+}
+
+.btn-filter:hover {
+    border-color: #475569;
+    color: #fff;
+}
+
+.btn-filter.active {
+    background: rgba(0, 243, 255, 0.08);
+    color: var(--neon-blue);
+    border-color: var(--neon-blue);
+    box-shadow: 0 0 8px rgba(0, 243, 255, 0.2);
+}
+
+/* Kybernetické fialové tlačítko Randomizeru */
+.btn-randomizer {
+    background: rgba(176, 38, 255, 0.1);
+    border: 1px solid var(--neon-purple);
+    color: var(--neon-purple);
+    padding: 9px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'Chakra Petch', sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85em;
+    transition: all 0.2s;
+    margin-left: 12px;
+}
+
+.btn-randomizer:hover {
+    background: var(--neon-purple);
+    color: #000;
+    box-shadow: 0 0 12px var(--neon-purple);
+}
+
+/* ================= MATICOVÝ SYSTÉM TABULEK ================= */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--glass-bg);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    table-layout: fixed; /* Uzamčení šířky sloupců natvrdo */
+}
+
+th {
+    background: rgba(5, 5, 10, 0.8);
+    color: #94a3b8;
+    text-transform: uppercase;
+    font-family: 'Chakra Petch', sans-serif;
+    font-size: 0.9em;
+    letter-spacing: 1px;
+    padding: 16px;
+    border-bottom: 2px solid var(--glass-border);
+}
+
+/* Absolutní matematické rozvržení buněk - už žádné skákání prvků */
+th:nth-child(1), td:nth-child(1) { width: 35%; text-align: left; }
+th:nth-child(2), td:nth-child(2) { width: 13%; text-align: center; }
+th:nth-child(3), td:nth-child(3) { width: 22%; text-align: center; }
+th:nth-child(4), td:nth-child(4) { width: 12%; text-align: center; }
+th:nth-child(5), td:nth-child(5) { width: 18%; text-align: center; }
+
+td {
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    color: #cbd5e1;
+    font-size: 1.05em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+tr {
+    transition: background 0.15s, box-shadow 0.15s;
+}
+
+tr:hover {
+    background: rgba(0, 243, 255, 0.02);
+    box-shadow: inset 3px 0 0 var(--neon-blue);
+}
+
+/* Vnitřní zarovnávací wrappery */
+.game-cell {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.game-icon {
+    width: 65px;
+    height: 30px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+.game-info-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.game-title-text {
+    font-family: 'Chakra Petch', sans-serif;
+    font-size: 1.05em;
+    color: #f1f5f9;
+}
+
+.font-numeric {
+    font-family: 'Chakra Petch', sans-serif;
+    font-weight: 600;
+}
+
+.achievement-column-wrapper, .actions-column-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+}
+
+/* Zářící fialový výherce z Randomizeru */
+.randomizer-winner-glow {
+    animation: winnerGlow 1.5s infinite ease-in-out !important;
+}
+
+/* ================= AKČNÍ KLÁVESY ================= */
+.btn-action {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid #334155;
+    color: #e2e8f0;
+    padding: 7px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.9em;
+    transition: all 0.2s;
+    outline: none;
+    white-space: nowrap;
+}
+
+.btn-action:hover {
+    border-color: var(--neon-blue);
+    color: #000 !important;
+    background: var(--neon-blue);
+    box-shadow: 0 0 12px rgba(0, 243, 255, 0.4);
+}
+
+.btn-delete {
+    color: #f87171;
+}
+
+.btn-delete:hover {
+    border-color: var(--neon-pink);
+    background: var(--neon-pink);
+    box-shadow: 0 0 12px rgba(255, 0, 85, 0.4);
+}
+
+/* Pevné rozměry pro tlačítko priority */
+.priorita-button {
+    width: 95px;
+    text-align: center;
+}
+
+.priorita-vysoka { border-color: var(--neon-pink); color: var(--neon-pink); }
+.priorita-stredni { border-color: var(--neon-gold); color: var(--neon-gold); }
+.priorita-nizka { border-color: var(--neon-green); color: var(--neon-green); }
+
+/* ================= INTERAKTIVNÍ POPUP OKNO PRIORITY ================= */
+.priority-popup {
+    position: absolute;
+    z-index: 99999;
+    background: #0f0f16;
+    border: 1px solid var(--neon-blue);
+    border-radius: 6px;
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    box-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
+}
+
+.popup-option {
+    border: 1px solid transparent;
+    background: transparent;
+    padding: 8px 16px;
+    color: #fff;
+    font-family: 'Chakra Petch', sans-serif;
+    font-weight: 600;
+    font-size: 0.85em;
+    cursor: pointer;
+    text-align: center;
+    min-width: 100px;
+    transition: all 0.15s;
+}
+
+.popup-option:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateY(-1px);
+}
+
+/* ================= BADGES A RECENZE ================= */
+.badge {
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-family: 'Chakra Petch', sans-serif;
+    font-size: 0.9em;
+}
+
+.badge-ach {
+    color: var(--neon-blue);
+    border: 1px solid rgba(0, 243, 255, 0.2);
+    background: rgba(0, 243, 255, 0.03);
+    white-space: nowrap;
+}
+
+.stav-odpad {
+    background-color: rgba(71, 85, 105, 0.2);
+    color: #64748b;
+    border: 1px solid #334155;
+}
+
+.text-gold { color: var(--neon-gold) !important; }
+
+.review-form {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    width: 100%;
+}
+
+.select-stars {
+    background: #000;
+    color: var(--neon-gold);
+    border: 1px solid rgba(255, 204, 0, 0.2);
+    padding: 6px;
+    border-radius: 5px;
+    outline: none;
+    font-size: 0.9em;
+}
+
+.review-input {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 5px;
+    outline: none;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1em;
+}
+
+.review-input:focus {
+    border-color: var(--neon-purple);
+}
+
+/* ================= DOPLŇKY ================= */
+.text-right { text-align: right; color: #64748b; font-size: 0.95em; margin-bottom: 20px; }
+.text-center { text-align: center; }
+.text-muted { color: #475569; }
+.text-success { color: var(--neon-green) !important; }
+.text-sync { color: var(--neon-green); text-decoration: none; font-weight: bold; }
+.text-sync:hover { text-shadow: 0 0 8px var(--neon-green); }
+.text-logout { color: var(--neon-pink); text-decoration: none; font-weight: bold; }
+.text-logout:hover { text-shadow: 0 0 8px var(--neon-pink); }
+.inline-form { display: inline-block; margin: 0; padding: 0; }
+
+.welcome-box {
+    text-align: center;
+    margin-top: 100px;
+    background: var(--glass-bg);
+    padding: 60px;
+    border-radius: 15px;
+    border: 1px solid rgba(0, 243, 255, 0.2);
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+}
+
+.steam-login-btn {
+    background: transparent;
+    color: #fff;
+    border: 2px solid var(--neon-blue);
+    padding: 15px 35px;
+    font-size: 1.2em;
+    font-family: 'Chakra Petch', sans-serif;
+    text-transform: uppercase;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 30px;
+    transition: 0.3s;
+}
+
+.steam-login-btn:hover {
+    background: var(--neon-blue);
+    color: #000;
+    box-shadow: 0 0 25px var(--neon-blue);
+}
