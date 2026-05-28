@@ -37,7 +37,8 @@ def seznam_her(request):
         # Spočítáme procentuální úspěšnost dokončení her
         procento_dokonceno = round((pocet_dohrano / pocet_vsech * 100), 1) if pocet_vsech > 0 else 0
         
-        return render(request, 'Hry/seznam_her.html', {
+        # OPRAVA: Cesta změněna na malá písmena 'hry/...' kvůli Linuxu
+        return render(request, 'hry/seznam_her.html', {
             'hry_nedohrano': hry_nedohrano,
             'hry_dohrano': hry_dohrano,
             'hry_odpad': hry_odpad,
@@ -48,7 +49,8 @@ def seznam_her(request):
             'stat_hltb': celkovy_hltb_backlog,  # Posíláme HLTB sumu do frontendu
         })
     else:
-        return render(request, 'Hry/seznam_her.html', {
+        # OPRAVA: Cesta změněna na malá písmena 'hry/...' kvůli Linuxu
+        return render(request, 'hry/seznam_her.html', {
             'hry_nedohrano': None, 'hry_dohrano': None, 'hry_odpad': None,
             'stat_hodiny': 0, 'stat_backlog': 0, 'stat_dohrano': 0, 'stat_procento': 0, 'stat_hltb': 0
         })
@@ -132,7 +134,6 @@ def nacist_ze_steam(request):
             cas_v_minutach = g.get('playtime_forever', 0)
 
             # Pokud hra už v databázi existuje, zachováme její starý HLTB čas, jinak nastavíme 0
-            # To zaručí, že import projde bleskově za 1-2 vteřiny
             hra_v_db = Hra.objects.filter(steam_id=id_hry, uzivatel=request.user).first()
             stary_hltb_cas = hra_v_db.hltb_cas if hra_v_db else 0
 
@@ -200,12 +201,16 @@ def aktualizuj_hltb_hry(request):
 
 
 def steam_login(request):
+    """Generuje Steam OpenID URL dynamicky pro lokál i server"""
+    # Zjistíme, jestli jedeme na PythonAnywhere nebo na localu
+    domena = request.build_absolute_uri('/')
+    
     steam_openid_url = 'https://steamcommunity.com/openid/login'
     params = {
         'openid.ns': 'http://specs.openid.net/auth/2.0',
         'openid.mode': 'checkid_setup',
-        'openid.return_to': 'http://127.0.0.1:8000/steam/callback/',
-        'openid.realm': 'http://127.0.0.1:8000/',
+        'openid.return_to': f'{domena}steam/callback/',
+        'openid.realm': domena,
         'openid.identity': 'http://specs.openid.net/auth/2.0/identifier_select',
         'openid.claimed_id': 'http://specs.openid.net/auth/2.0/identifier_select',
     }
