@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import path
 from Hry import views  # Čistý import views z aplikace Hry
+from django.views.generic import RedirectView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
